@@ -2,18 +2,15 @@
 #include <string.h>
 
 // ACCOUNT 1
-double oldBalance1 = 30000.0;
-double newBalance1;
+double oldBalance1;
 char numberAccount1[1] = "1";
 char typeAccount1[30] = "Cuenta Ahorro";
 // ACCOUNT 2
-double oldBalance2 = 500000.0;
-double newBalance2;
+double oldBalance2;
 char numberAccount2[1] = "2";
 char typeAccount2[30] = "Cuenta Corriente";
 // ACCOUNT 3
-double oldBalance3 = 1500000.0;
-double newBalance3;
+double oldBalance3;
 char numberAccount3[1] = "3";
 char typeAccount3[30] = "Cuenta Ahorro";
 
@@ -28,8 +25,12 @@ void resumeMovementScreen(char *action, double amount, char *account, char * typ
 int main() {
     char userNameInput[30];
     char passwordInput[4];
+    oldBalance1 = 30000.0;
+	oldBalance2 = 500000.0;
+	oldBalance3 = 1500000.0;
     printf("<---    BANCO X     --->\n");
     loginScreen(userNameInput, passwordInput);
+    printf("%d", oldBalance1);
     return 0;
 }
 void loginScreen(char *userNameInput, char *passwordInput) {
@@ -44,7 +45,7 @@ void loginScreen(char *userNameInput, char *passwordInput) {
 void errorLoginScreen(char *userNameInput, char *passwordInput) {
 	char intentAgainLogin[1];
 	printf("<--- 	Usuario o contrasena incorrectos	--->\n");
-	printf("Intentar nuevamente (1 = Si/0 = No): ");
+	printf("Intentar nuevamente (S/N): ");
 	scanf("%s", intentAgainLogin);
 	if (strcmp(intentAgainLogin, "S") == 0) {
 		loginScreen(userNameInput, passwordInput);
@@ -62,6 +63,7 @@ if (strcmp(userNameInput, "Jhoto356") == 0) {
 	}
 }
 void optionsGeneralScreen() {
+	printf("    Saldo anterior: %2.f\n", oldBalance1);
 	char optionToDo[1];
 	printf("\n<---	MENU DE OPCIONES	--->\n");
 	printf("	1. Depositar\n");
@@ -101,18 +103,24 @@ void doDepositScreen() {
 	scanf("%d", &numberSelected);
 	printf("Escribe el valor a depositar: ");
 	scanf("%lf", &depositInput);
+	double newBalance;
+	double oldBalance;
 	if (numberSelected == 1) {
-	    newBalance1 = depositInput + oldBalance1;
-	    resumeMovementScreen("Deposito", depositInput, numberAccount1, typeAccount1, oldBalance1, newBalance1);
-	    oldBalance1 = newBalance1;
+		oldBalance = oldBalance1;
+	    newBalance = depositInput + oldBalance1;
+	    oldBalance1 = newBalance;
+	    resumeMovementScreen("Deposito", depositInput, numberAccount1, typeAccount1, oldBalance, newBalance);
 	} else if (numberSelected == 2) {
-	    newBalance2 = depositInput + oldBalance2;
-	    resumeMovementScreen("Deposito", depositInput, numberAccount2, typeAccount2, oldBalance2, newBalance2);
-	    oldBalance2 = newBalance2;
+		oldBalance = oldBalance2;
+	    newBalance = depositInput + oldBalance2;
+	    oldBalance2 = newBalance;
+	    resumeMovementScreen("Deposito", depositInput, numberAccount2, typeAccount2, oldBalance, newBalance);
 	} else if (numberSelected == 3) {
-	    newBalance3 = depositInput + oldBalance3;
-	    resumeMovementScreen("Deposito", depositInput, numberAccount3, typeAccount3, oldBalance3, newBalance3);
-	    oldBalance3 = newBalance3;
+		oldBalance = oldBalance3;
+	    newBalance = depositInput + oldBalance3;
+	    oldBalance3 = newBalance;
+	    resumeMovementScreen("Deposito", depositInput, numberAccount3, typeAccount3, oldBalance, newBalance);
+	    oldBalance3 = depositInput + oldBalance3;
 	} else {
 		printf("La cuenta no existe");
 	}
@@ -127,7 +135,7 @@ void setCountData(char *typeAccount, char *numberOfAccount, double balance) {
 	printf("	Cuenta Numero: %s - %s - Saldo: %2.f\n", numberOfAccount, typeAccount, balance);
 }
 void resumeMovementScreen(char *action, double amount, char *account, char * type, double oldBalance, double newBalance) {
-	printf("\n<---	Vas a realizar un deposito	--->\n");
+	printf("\n<---	Resumen de movimineto	--->\n");
 	printf("    Acción: %s\n", action);
 	printf("    Monto: %2.f\n", amount);
 	printf("    Cuenta: %s\n", account);
@@ -135,4 +143,10 @@ void resumeMovementScreen(char *action, double amount, char *account, char * typ
 	printf("    Saldo anterior: %2.f\n", oldBalance);
 	printf("    Saldo nuevo: %2.f\n", newBalance);
 	printf("<---	--->\n");
+	char returnToMenu[1];
+	printf("\nDesea realizar otra operacion(S/N): ");
+	scanf("%s", returnToMenu);
+	if (strcmp(toupper(returnToMenu), "S") == 0) {
+			optionsGeneralScreen();
+	}
 }
