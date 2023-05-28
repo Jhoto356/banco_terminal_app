@@ -21,6 +21,7 @@ void optionsGeneralScreen();
 void doDepositScreen();
 void listOfAccountScreen();
 void resumeMovementScreen(char *action, double amount, char *account, char * type, double oldBalance, double newBalance);
+void doWithdrawalScreen();
 
 int main() {
     char userNameInput[30];
@@ -63,7 +64,6 @@ if (strcmp(userNameInput, "Jhoto356") == 0) {
 	}
 }
 void optionsGeneralScreen() {
-	printf("    Saldo anterior: %2.f\n", oldBalance1);
 	char optionToDo[1];
 	printf("\n<---	MENU DE OPCIONES	--->\n");
 	printf("	1. Depositar\n");
@@ -77,6 +77,9 @@ void optionsGeneralScreen() {
 	printf("<---	--->\n");
 	if (strcmp(optionToDo, "1") == 0) {
 		doDepositScreen();
+	}
+	if (strcmp(optionToDo, "2") == 0) {
+		doWithdrawalScreen();
 	}
 	if (strcmp(optionToDo, "4") == 0) {
 		char returnToMenu[1];
@@ -93,6 +96,55 @@ void optionsGeneralScreen() {
 		printf("\n<---	Finalizando programa	--->\n");
 		exit(0);
 	}
+}
+void doWithdrawalScreen() {
+	printf("\n<---	Vas a realizar un retiro	--->\n");
+	int numberSelected;
+	double withdrawalInput;
+	listOfAccountScreen();
+	printf("Escribe el numero de Cuenta: ");
+	scanf("%d", &numberSelected);
+	printf("Escribe el valor a depositar: ");
+	scanf("%lf", &withdrawalInput);
+	double newBalance;
+	double oldBalance;
+	if (numberSelected == 1) {
+		oldBalance = oldBalance1;
+	    if (withdrawalInput > oldBalance) {
+	    	newBalance = oldBalance1;
+	    	withdrawalInput = 0.0;
+	    	printf("<---	Saldo insuficiente	--->\n");
+		} else {
+			newBalance = oldBalance - withdrawalInput;
+			oldBalance1 = newBalance;
+		}
+		resumeMovementScreen("Retiro", withdrawalInput, numberAccount1, typeAccount1, oldBalance, newBalance);
+	} else if (numberSelected == 2) {
+		oldBalance = oldBalance2;
+		if (withdrawalInput > oldBalance) {
+			newBalance = oldBalance2;
+	    	withdrawalInput = 0.0;
+	    	printf("<---	Saldo insuficiente	--->\n");
+		} else {
+			newBalance = oldBalance - withdrawalInput;
+	    	oldBalance2 = newBalance;
+		}
+	    resumeMovementScreen("Retiro", withdrawalInput, numberAccount2, typeAccount2, oldBalance, newBalance);
+	} else if (numberSelected == 3) {
+		oldBalance = oldBalance3;
+		if (withdrawalInput > oldBalance) {
+			newBalance = oldBalance3;
+	    	withdrawalInput = 0.0;
+	    	printf("<---	Saldo insuficiente	--->\n");
+		} else {
+			newBalance = oldBalance - withdrawalInput;
+	    	oldBalance3 = newBalance;
+		}
+	    resumeMovementScreen("Retiro", withdrawalInput, numberAccount3, typeAccount3, oldBalance, newBalance);
+	} else {
+		printf("La cuenta no existe");
+	}
+	printf("<---	--->\n");
 }
 void doDepositScreen() {
 	printf("\n<---	Vas a realizar un deposito	--->\n");
@@ -120,7 +172,6 @@ void doDepositScreen() {
 	    newBalance = depositInput + oldBalance3;
 	    oldBalance3 = newBalance;
 	    resumeMovementScreen("Deposito", depositInput, numberAccount3, typeAccount3, oldBalance, newBalance);
-	    oldBalance3 = depositInput + oldBalance3;
 	} else {
 		printf("La cuenta no existe");
 	}
@@ -136,7 +187,7 @@ void setCountData(char *typeAccount, char *numberOfAccount, double balance) {
 }
 void resumeMovementScreen(char *action, double amount, char *account, char * type, double oldBalance, double newBalance) {
 	printf("\n<---	Resumen de movimineto	--->\n");
-	printf("    Acción: %s\n", action);
+	printf("    Accion: %s\n", action);
 	printf("    Monto: %2.f\n", amount);
 	printf("    Cuenta: %s\n", account);
 	printf("    %s\n", type);
