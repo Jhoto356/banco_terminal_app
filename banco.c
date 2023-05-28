@@ -94,22 +94,25 @@ void optionsGeneralScreen() {
 }
 void doDepositScreen() {
 	printf("\n<---	Vas a realizar un deposito	--->\n");
-	char numberSelected[1];
+	int numberSelected;
 	double depositInput;
 	listOfAccountScreen();
 	printf("Escribe el numero de Cuenta: ");
-	scanf("%i", numberSelected);
+	scanf("%d", &numberSelected);
 	printf("Escribe el valor a depositar: ");
-	scanf("%i", depositInput);
-	//void resumeMovementScreen(char *action, double amount, char *account, char * type, double oldBalance, double newBalance);
-	if (strcmp(numberSelected, "1") == 0) {
+	scanf("%lf", &depositInput);
+	if (numberSelected == 1) {
 	    newBalance1 = depositInput + oldBalance1;
 	    resumeMovementScreen("Deposito", depositInput, numberAccount1, typeAccount1, oldBalance1, newBalance1);
 	    oldBalance1 = newBalance1;
-	} else if (strcmp(numberSelected, "2") == 0) {
+	} else if (numberSelected == 2) {
 	    newBalance2 = depositInput + oldBalance2;
-	} else if (strcmp(numberSelected, "3") == 0) {
+	    resumeMovementScreen("Deposito", depositInput, numberAccount2, typeAccount2, oldBalance2, newBalance2);
+	    oldBalance2 = newBalance2;
+	} else if (numberSelected == 3) {
 	    newBalance3 = depositInput + oldBalance3;
+	    resumeMovementScreen("Deposito", depositInput, numberAccount3, typeAccount3, oldBalance3, newBalance3);
+	    oldBalance3 = newBalance3;
 	} else {
 		printf("La cuenta no existe");
 	}
@@ -130,6 +133,6 @@ void resumeMovementScreen(char *action, double amount, char *account, char * typ
 	printf("    Cuenta: %s\n", account);
 	printf("    %s\n", type);
 	printf("    Saldo anterior: %2.f\n", oldBalance);
-	printf("    Saldo anterior: %2.f\n", newBalance);
+	printf("    Saldo nuevo: %2.f\n", newBalance);
 	printf("<---	--->\n");
 }
