@@ -1,6 +1,13 @@
 #include <stdio.h>
 #include <string.h>
 
+double oldBalanceTemp1;
+double oldBalanceTemp2;
+double oldBalanceTemp3;
+double oldBalanceTempD1;
+double oldBalanceTempD2;
+double oldBalanceTempD3;
+
 // ACCOUNT 1
 double oldBalance1;
 char numberAccount1[1] = "1";
@@ -22,6 +29,8 @@ void doDepositScreen();
 void listOfAccountScreen();
 void resumeMovementScreen(char *action, double amount, char *account, char * type, double oldBalance, double newBalance);
 void doWithdrawalScreen();
+void returnToMenu();
+void resumeMovementTransferScreen(double amount, int account1, int account2, char * type1, char * type2,  double oldBalance1, double oldBalance2, double newBalance1, double newBalance2);
 
 int main() {
     char userNameInput[30];
@@ -81,6 +90,9 @@ void optionsGeneralScreen() {
 	if (strcmp(optionToDo, "2") == 0) {
 		doWithdrawalScreen();
 	}
+	if (strcmp(optionToDo, "3") == 0) {
+		doTransferScreen();
+	}
 	if (strcmp(optionToDo, "4") == 0) {
 		char returnToMenu[1];
 		printf("\n<---	Listado de cuentas disponibles	--->\n");
@@ -95,6 +107,117 @@ void optionsGeneralScreen() {
 	if (strcmp(optionToDo, "5") == 0) {
 		printf("\n<---	Finalizando programa	--->\n");
 		exit(0);
+	}
+}
+void doTransferScreen() {
+	printf("\n<---	Vas a realizar un transferencia	--->\n");
+	int numberSelectedSource;
+	int numberSelectedDestination;
+	char typeSelectedSource[30];
+	char typeSelectedDestination[30];
+	double oldBlanceSource;
+	double oldBlanceDestination;
+	double newBlanceSource;
+	double newBlanceDestination;
+	double withdrawalInput;
+	listOfAccountScreen();
+	printf("Escribe el numero de Cuenta de origen: ");
+	scanf("%d", &numberSelectedSource);
+	printf("Escribe el numero de Cuenta de destino: ");
+	scanf("%d", &numberSelectedDestination);
+	printf("Escribe el monto a tranferir: ");
+	scanf("%lf", &withdrawalInput);
+	// VALIDA SI LA CUENTA DE ORIGEN EXISTE
+	if (numberSelectedSource == 1) {
+		oldBalanceTemp1 = oldBalance1;
+		oldBlanceSource = oldBalanceTemp1;
+		newBlanceSource = oldBalance1 - withdrawalInput;
+		oldBalance1 = newBlanceSource;
+		strcpy(typeSelectedSource, typeAccount1);
+	} else if (numberSelectedSource == 2) {
+		oldBalanceTemp2 = oldBalance2;
+		oldBlanceSource = oldBalanceTemp2;
+		newBlanceSource = oldBalance2 - withdrawalInput;
+		oldBalance2 = newBlanceSource;
+		strcpy(typeSelectedSource, typeAccount2);
+	} else if (numberSelectedSource == 3) {
+		oldBalanceTemp3 = oldBalance3;
+		oldBlanceSource = oldBalanceTemp3;
+		newBlanceSource = oldBalance3 - withdrawalInput;
+		oldBalance3 = newBlanceSource;
+		strcpy(typeSelectedSource, typeAccount3);
+	} else {
+		printf("La cuenta de origen no existe\n");
+		returnToMenu();
+	}
+	// VALIDA SI LA TRANSFERENCIA NO ES ENTRE LA MISMA CUENTA
+	if (numberSelectedSource == numberSelectedDestination) {
+		oldBalance1 = oldBalanceTemp1;
+		oldBalance2 = oldBalanceTemp2;
+		oldBalance3 = oldBalanceTemp3;
+		printf("No es posible transferir entre las misma cuenta\n");
+		returnToMenu();
+	} else {
+		// VALIDA SI LA CUENTA DE DESTINO EXISTE
+		if (numberSelectedDestination == 1) {
+			oldBalanceTempD1 = oldBalance1;
+			oldBlanceDestination = oldBalanceTempD1;
+			newBlanceDestination = oldBalance1 + withdrawalInput;
+			oldBalance1 = newBlanceDestination;
+			strcpy(typeSelectedDestination, typeAccount1);
+		} else if (numberSelectedDestination == 2) {
+			oldBalanceTempD2 = oldBalance2;
+			oldBlanceDestination = oldBalanceTempD2;
+			newBlanceDestination = oldBalance2 + withdrawalInput;
+			oldBalance2 = newBlanceDestination;
+			strcpy(typeSelectedDestination, typeAccount2);
+		} else if (numberSelectedDestination == 3) {
+			oldBalanceTempD3 = oldBalance3;
+			oldBlanceDestination = oldBalanceTempD3;
+			newBlanceDestination = oldBalance3 + withdrawalInput;
+			oldBalance3 = newBlanceDestination;
+			strcpy(typeSelectedDestination, typeAccount3);
+		} else {
+			oldBalance1 = oldBalanceTemp1;
+			oldBalance2 = oldBalanceTemp2;
+			oldBalance3 = oldBalanceTemp3;
+			printf("La cuenta de destino o existe\n");
+			returnToMenu();
+		}
+		resumeMovementTransferScreen(withdrawalInput, numberSelectedSource, numberSelectedDestination, typeSelectedSource, typeSelectedDestination, oldBlanceSource, oldBlanceDestination, newBlanceSource, newBlanceDestination);
+	}
+	printf("<---	--->\n");
+}
+void returnToMenu() {
+	printf("<---	--->\n");
+	char returnToMenu[1];
+	printf("\nDesea realizar otra operacion(S/N): ");
+	scanf("%s", returnToMenu);
+	if (strcmp(toupper(returnToMenu), "S") == 0) {
+		optionsGeneralScreen();
+	}
+}
+void resumeMovementTransferScreen(double amount, int account1, int account2, char * type1, char * type2,  double oldBalance1, double oldBalance2, double newBalance1, double newBalance2) {
+	printf("\n<---	Resumen de movimiento	--->\n");
+	printf("    Accion: Retiro\n");
+	printf("    Monto: %.2f\n", amount);
+	printf("    Cuenta: %d\n", account1);
+	printf("    %s\n", type1);
+	printf("    Saldo anterior: %2.f\n", oldBalance1);
+	printf("    Saldo nuevo: %2.f\n", newBalance1);
+	printf("<---	Resumen de movimiento	--->\n");
+	printf("    Accion: Deposito\n");
+	printf("    Monto: %2.f\n", amount);
+	printf("    Cuenta: %d\n", account2);
+	printf("    %s\n", type2);
+	printf("    Saldo anterior: %2.f\n", oldBalance2);
+	printf("    Saldo nuevo: %2.f\n", newBalance2);
+	printf("<---	--->\n");
+	char returnToMenu[1];
+	printf("\nDesea realizar otra operacion(S/N): ");
+	scanf("%s", returnToMenu);
+	if (strcmp(toupper(returnToMenu), "S") == 0) {
+			optionsGeneralScreen();
 	}
 }
 void doWithdrawalScreen() {
