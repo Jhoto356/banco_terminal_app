@@ -1,12 +1,41 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 
+/** 
+NOTA:
+En C no existen los string como tal, en C eun string en un array de char[X]
+¡¡IMPORTANTE!!
+- strcpy(typeSelectedSource, typeAccount2) -> FUNCIÓN DE C PARA ASUGNAR UN STRING(CHAR[X])
+- exit(0) -> FUNCIÓN DE C PARA FINALIZAR LA EJECIÓN DE UN PROGRAMA
+- strcmp(intentAgainLogin, "S") -> FUNCIÓN DE C PARA COMPARAR CHAR[x] SI EL RESULTADO ES 0 SON IGUALES DEPENDE DE LA LIBRERIA string.h
+- scanf("%d", &numberSelectedSource); -> EL SIGNO "&" ES PARA PODER OBTENER EL NÚMERO ENTERO O DECIMAL ESCRITO
+- toupper(returnToMenu) -> FUNCIÓN DE C PARA CONVERTIR LA CADENA A MAYUSCULAS
+- printf("    Monto: %2.f\n", amount); -> EL %2.F ES PARA DAR FORMATO DE 2 DECIMALES
+**/
+
+// VARIABLES TEMPORALES PARA GUARDAR EL VALOR ANTES DE UN TRANSFRENCIA, PARA EVITAR AFECTACIÓN SI ESTA NO ES REALIZADA
 double oldBalanceTemp1;
 double oldBalanceTemp2;
 double oldBalanceTemp3;
+
 double oldBalanceTempD1;
 double oldBalanceTempD2;
 double oldBalanceTempD3;
+
+FILE *loginData; // VARIABLE APUNTADOR AL ARCHIVO PARA EL LOGIN
+FILE *accountData; // VARIABLE APUNTADOR AL ARCHIVO PARA EL LOGIN
+
+// CREDENCIALES DE INICIO DE SESIÓN
+char userNameInput[30];
+int passwordInput;
+
+char userNameValid[30];
+int passwordValid;
+
+// MATRIZ DE CUENTAS
+int accountInfo[3][3];
 
 // ACCOUNT 1
 double oldBalance1;
@@ -21,57 +50,79 @@ double oldBalance3;
 char numberAccount3[1] = "3";
 char typeAccount3[30] = "Cuenta Ahorro";
 
-void loginScreen(char *userNameInput, char *passwordInput);
-void errorLoginScreen(char *userNameInput, char *passwordInput);
-void validCredentialAccess(char *userNameInput, char *passwordInput);
+// DEFINICIÓN DE FUNCIONES
+void loginScreen();
+void errorLoginScreen();
+void validCredentialAccess();
 void optionsGeneralScreen();
 void doDepositScreen();
 void listOfAccountScreen();
 void resumeMovementScreen(char *action, double amount, char *account, char * type, double oldBalance, double newBalance);
 void doWithdrawalScreen();
+void doTransferScreen();
 void returnToMenu();
+void resumeMovementDepositScreen(int amount, int account, int type, int oldBalance, int newBalance);
 void resumeMovementTransferScreen(double amount, int account1, int account2, char * type1, char * type2,  double oldBalance1, double oldBalance2, double newBalance1, double newBalance2);
 
 int main() {
-    char userNameInput[30];
-    char passwordInput[4];
     oldBalance1 = 30000.0;
 	oldBalance2 = 500000.0;
 	oldBalance3 = 1500000.0;
-    printf("<---    BANCO X     --->\n");
-    loginScreen(userNameInput, passwordInput);
-    printf("%d", oldBalance1);
+	loginData = fopen("userInfoLogin.txt", "rb");
+	if (loginData == NULL) {
+		printf("Archivo no disponible");
+		exit(0);
+	} else {
+		while (feof(loginData) == 0) {
+			fscanf(loginData, "%s%d", &userNameValid, &passwordValid);
+		}
+		fclose(loginData);
+		accountInfo[0][0] = 1001;
+		accountInfo[0][1] = 1;
+		accountInfo[0][2] = 30000;
+		accountInfo[1][0] = 2001;
+		accountInfo[1][1] = 2;
+		accountInfo[1][2] = 1600000;
+		accountInfo[2][0] = 1002;
+		accountInfo[2][1] = 1;
+		accountInfo[2][2] = 450000;
+		printf("<---    BANCO X     --->\n");
+    	loginScreen();
+	}
     return 0;
 }
-void loginScreen(char *userNameInput, char *passwordInput) {
+
+// FUNCIÓN PARA MOSTRAR EL LOGIN
+void loginScreen() {
 	printf("\n<---	--->\n");
     printf("-> Usuario: ");
     scanf("%s", userNameInput);
     printf("-> Contrasena: ");
-    scanf("%s", passwordInput);
+    scanf("%d", &passwordInput);
     printf("<---	--->\n");
-	validCredentialAccess(userNameInput, passwordInput);
+	validCredentialAccess(); 
 }
-void errorLoginScreen(char *userNameInput, char *passwordInput) {
+// FUNCIÓN PARA VALIDAR LA CREDENCIALES
+void validCredentialAccess() {
+	int resultUserName = strcmp(userNameInput, userNameValid);
+	if (resultUserName == 0 && passwordInput == passwordValid) { // VALIDA SI EL USUARIO Y CONSTRASEÑA SON CORRECTOs
+		optionsGeneralScreen();	
+	} else {
+		errorLoginScreen();
+	}
+}
+// FUNCIÓN PARA PREGUNTAR SI DESEA REINTETAR EL LOGIN
+void errorLoginScreen() {
 	char intentAgainLogin[1];
 	printf("<--- 	Usuario o contrasena incorrectos	--->\n");
 	printf("Intentar nuevamente (S/N): ");
 	scanf("%s", intentAgainLogin);
-	if (strcmp(intentAgainLogin, "S") == 0) {
+	int result = strcmp(intentAgainLogin, "S");
+	if (result == 0) {
 		loginScreen(userNameInput, passwordInput);
-	}
+	} 
 }
-void validCredentialAccess(char *userNameInput, char *passwordInput) {
-if (strcmp(userNameInput, "Jhoto356") == 0) {
-		if (strcmp(passwordInput, "1234") == 0) {
-			optionsGeneralScreen();
-		} else {
-			errorLoginScreen(userNameInput, passwordInput);
-		}
-	} else {
-		errorLoginScreen(userNameInput, passwordInput);
-	}
-}
+// FUNCIÓN PARA MOSTRAR Y SELECCIONAR LA OPCIÓN DEL MENU PRINCIAPL
 void optionsGeneralScreen() {
 	char optionToDo[1];
 	printf("\n<---	MENU DE OPCIONES	--->\n");
@@ -84,31 +135,106 @@ void optionsGeneralScreen() {
 	printf("Selecciona una opcion -> ");
 	scanf("%s", optionToDo);
 	printf("<---	--->\n");
-	if (strcmp(optionToDo, "1") == 0) {
+	if (strcmp(optionToDo, "1") == 0) { // REALIZAR UN DEPOSITO
 		doDepositScreen();
 	}
-	if (strcmp(optionToDo, "2") == 0) {
+	if (strcmp(optionToDo, "2") == 0) { // REALIZAR UN RETIRO
 		doWithdrawalScreen();
 	}
-	if (strcmp(optionToDo, "3") == 0) {
+	if (strcmp(optionToDo, "3") == 0) { // REALIZAR UNA TRANSFERENCIA
 		doTransferScreen();
 	}
-	if (strcmp(optionToDo, "4") == 0) {
-		char returnToMenu[1];
+	if (strcmp(optionToDo, "4") == 0) { // MOSTRAR EL LISTADO DE CUENTA
 		printf("\n<---	Listado de cuentas disponibles	--->\n");
 		listOfAccountScreen();
-		printf("Regrsar al menu de opciones(S/N) -> ");
-		scanf("%s", returnToMenu);
-		if (strcmp(toupper(returnToMenu), "S") == 0) {
-			optionsGeneralScreen();
-		}
+		returnToMenu();
 		printf("<---	--->\n");
 	}
-	if (strcmp(optionToDo, "5") == 0) {
+	if (strcmp(optionToDo, "5") == 0) { // OPCIÓN PARA SALIR
 		printf("\n<---	Finalizando programa	--->\n");
 		exit(0);
 	}
 }
+// FUNCIÓN PARA MOSTRAR LAS CUENTAS DISPONIBLES Y SU INFORMACIÓN
+void listOfAccountScreen() {
+	int positionRow = 0;
+	printf("	Cuenta numero - Tipo - Saldo\n");
+	for (positionRow; positionRow < 3; positionRow++) {
+		printf("		%d	%d	$%d\n", accountInfo[positionRow][0], accountInfo[positionRow][1], accountInfo[positionRow][2]);
+	}
+}
+// FUNCIÓN PARA REALIZAR UN DEPOSITO Y VALIDARLO
+void doDepositScreen() {
+	printf("\n<---	Vas a realizar un deposito	--->\n");
+	int numberSelected, depositInput, newBalanceTemp;
+	listOfAccountScreen();
+	accountData = fopen("userAccount.txt", "a");
+	if (accountData == NULL) {
+		printf("Archivo no disponible");
+		exit(0);
+	} 
+	printf("Escribe el numero de Cuenta: ");
+	scanf("%d", &numberSelected);
+	printf("Escribe el valor a depositar: ");
+	scanf("%d", &depositInput);
+	if (depositInput < 0) { // VALIDA QUE EL VALOR A DEPOSITAR NO SEA NEGATIVO
+		printf("El valor a depositar es negativo.\n");
+		returnToMenu();
+	} 
+	int r = 0;
+	int existAccount = 0;
+	for (r; r < 3; r++) {
+		int numberAccount, typeAccount, balance;
+		numberAccount = accountInfo[r][0];
+		typeAccount = accountInfo[r][1];
+		balance = accountInfo[r][2];
+		if (numberAccount == numberSelected) {
+			existAccount = 1;
+			accountInfo[r][2] = balance + depositInput;
+			fprintf(accountData, "%d %d %d\n", numberAccount, typeAccount, newBalanceTemp);
+			resumeMovementDepositScreen(depositInput, numberAccount, typeAccount, balance, accountInfo[r][2]);
+		} else {
+			fprintf(accountData, "%d %d %d\n", numberAccount, typeAccount, balance);
+		}
+		if (r == 2 && existAccount == 0) {
+			printf("La cuenta no existe\n");
+			returnToMenu();
+		}
+	}
+	fflush(accountData);
+	fclose(accountData);
+	printf("\n<---	--->\n");
+}
+// FUNCIÓN PARA MOSTRAR EL RESUMEN DE UN RETIRO O DEPOSITO
+void resumeMovementDepositScreen(int amount, int account, int type, int oldBalance, int newBalance) {
+	printf("\n<---	Resumen de movimiento	--->\n");
+	printf("    Accion: Deposito\n");
+	printf("    Monto: %d\n", amount);
+	printf("    Cuenta: %d\n", account);
+	printf("    Tipo: %d\n", type);
+	printf("    Saldo anterior: %d\n", oldBalance);
+	printf("    Saldo nuevo: %d\n", newBalance);
+	printf("<---	--->\n");
+	returnToMenu();
+}
+// FUNCIÓN PARA MOSTRAR EL RESUMEN DE UN RETIRO O DEPOSITO
+void resumeMovementScreen(char *action, double amount, char *account, char * type, double oldBalance, double newBalance) {
+	printf("\n<---	Resumen de movimineto	--->\n");
+	printf("    Accion: %s\n", action);
+	printf("    Monto: %2.f\n", amount);
+	printf("    Cuenta: %s\n", account);
+	printf("    %s\n", type);
+	printf("    Saldo anterior: %2.f\n", oldBalance);
+	printf("    Saldo nuevo: %2.f\n", newBalance);
+	printf("<---	--->\n");
+	char returnToMenu[1];
+	printf("\nDesea realizar otra operacion(S/N): ");
+	scanf("%s", returnToMenu);
+	if (strcmp(returnToMenu, "S") == 0) {
+			optionsGeneralScreen();
+	}
+}
+//FUNCIÓN PARA REALIZAR UNA TRANFERENCIA Y VALIDARLA
 void doTransferScreen() {
 	printf("\n<---	Vas a realizar un transferencia	--->\n");
 	int numberSelectedSource;
@@ -133,7 +259,7 @@ void doTransferScreen() {
 		oldBlanceSource = oldBalanceTemp1;
 		newBlanceSource = oldBalance1 - withdrawalInput;
 		oldBalance1 = newBlanceSource;
-		strcpy(typeSelectedSource, typeAccount1);
+		strcpy(typeSelectedSource, typeAccount1); 
 	} else if (numberSelectedSource == 2) {
 		oldBalanceTemp2 = oldBalance2;
 		oldBlanceSource = oldBalanceTemp2;
@@ -188,15 +314,18 @@ void doTransferScreen() {
 	}
 	printf("<---	--->\n");
 }
+// FUNCIÓN PARA RETORNAR AL MENU PRINCIPAL
 void returnToMenu() {
 	printf("<---	--->\n");
 	char returnToMenu[1];
 	printf("\nDesea realizar otra operacion(S/N): ");
 	scanf("%s", returnToMenu);
-	if (strcmp(toupper(returnToMenu), "S") == 0) {
+	if (strcmp(returnToMenu, "S") == 0) {
 		optionsGeneralScreen();
 	}
 }
+
+// FUNCIÓN PARA MOSTRAR EL RESUMEN DE TRANFERENCIA
 void resumeMovementTransferScreen(double amount, int account1, int account2, char * type1, char * type2,  double oldBalance1, double oldBalance2, double newBalance1, double newBalance2) {
 	printf("\n<---	Resumen de movimiento	--->\n");
 	printf("    Accion: Retiro\n");
@@ -216,10 +345,11 @@ void resumeMovementTransferScreen(double amount, int account1, int account2, cha
 	char returnToMenu[1];
 	printf("\nDesea realizar otra operacion(S/N): ");
 	scanf("%s", returnToMenu);
-	if (strcmp(toupper(returnToMenu), "S") == 0) {
+	if (strcmp(returnToMenu, "S") == 0) {
 			optionsGeneralScreen();
 	}
 }
+// FUNCIÓN PARA REALIZAR UN RETIRO Y VALIDARLO
 void doWithdrawalScreen() {
 	printf("\n<---	Vas a realizar un retiro	--->\n");
 	int numberSelected;
@@ -227,7 +357,7 @@ void doWithdrawalScreen() {
 	listOfAccountScreen();
 	printf("Escribe el numero de Cuenta: ");
 	scanf("%d", &numberSelected);
-	printf("Escribe el valor a depositar: ");
+	printf("Escribe el valor a retirar: ");
 	scanf("%lf", &withdrawalInput);
 	double newBalance;
 	double oldBalance;
@@ -262,65 +392,12 @@ void doWithdrawalScreen() {
 		} else {
 			newBalance = oldBalance - withdrawalInput;
 	    	oldBalance3 = newBalance;
+	    	resumeMovementScreen("Retiro", withdrawalInput, numberAccount3, typeAccount3, oldBalance, newBalance);
 		}
-	    resumeMovementScreen("Retiro", withdrawalInput, numberAccount3, typeAccount3, oldBalance, newBalance);
 	} else {
 		printf("La cuenta no existe");
+		returnToMenu();
 	}
-	printf("<---	--->\n");
-}
-void doDepositScreen() {
-	printf("\n<---	Vas a realizar un deposito	--->\n");
-	int numberSelected;
-	double depositInput;
-	listOfAccountScreen();
-	printf("Escribe el numero de Cuenta: ");
-	scanf("%d", &numberSelected);
-	printf("Escribe el valor a depositar: ");
-	scanf("%lf", &depositInput);
-	double newBalance;
-	double oldBalance;
-	if (numberSelected == 1) {
-		oldBalance = oldBalance1;
-	    newBalance = depositInput + oldBalance1;
-	    oldBalance1 = newBalance;
-	    resumeMovementScreen("Deposito", depositInput, numberAccount1, typeAccount1, oldBalance, newBalance);
-	} else if (numberSelected == 2) {
-		oldBalance = oldBalance2;
-	    newBalance = depositInput + oldBalance2;
-	    oldBalance2 = newBalance;
-	    resumeMovementScreen("Deposito", depositInput, numberAccount2, typeAccount2, oldBalance, newBalance);
-	} else if (numberSelected == 3) {
-		oldBalance = oldBalance3;
-	    newBalance = depositInput + oldBalance3;
-	    oldBalance3 = newBalance;
-	    resumeMovementScreen("Deposito", depositInput, numberAccount3, typeAccount3, oldBalance, newBalance);
-	} else {
-		printf("La cuenta no existe");
-	}
-	printf("<---	--->\n");
-}
-void listOfAccountScreen() {
-	setCountData(typeAccount1, numberAccount1, oldBalance1);
-	setCountData(typeAccount2, numberAccount2, oldBalance2);
-	setCountData(typeAccount3, numberAccount3, oldBalance3);
-}
-void setCountData(char *typeAccount, char *numberOfAccount, double balance) {
-	printf("	Cuenta Numero: %s - %s - Saldo: %2.f\n", numberOfAccount, typeAccount, balance);
-}
-void resumeMovementScreen(char *action, double amount, char *account, char * type, double oldBalance, double newBalance) {
-	printf("\n<---	Resumen de movimineto	--->\n");
-	printf("    Accion: %s\n", action);
-	printf("    Monto: %2.f\n", amount);
-	printf("    Cuenta: %s\n", account);
-	printf("    %s\n", type);
-	printf("    Saldo anterior: %2.f\n", oldBalance);
-	printf("    Saldo nuevo: %2.f\n", newBalance);
-	printf("<---	--->\n");
-	char returnToMenu[1];
-	printf("\nDesea realizar otra operacion(S/N): ");
-	scanf("%s", returnToMenu);
-	if (strcmp(toupper(returnToMenu), "S") == 0) {
-			optionsGeneralScreen();
-	}
+
+	printf("\n<---	--->\n");
 }
